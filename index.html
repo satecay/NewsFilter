@@ -306,6 +306,58 @@ font-family: var(–sans);
 }
 .view-tab.active { color: var(–ink); border-bottom-color: var(–accent); }
 
+/* ── ACCORDION ── */
+.accordion { margin-bottom: 6px; border: 1.5px solid var(–border); border-radius: 8px; overflow: hidden; }
+.accordion-header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 9px 12px;
+cursor: pointer; user-select: none;
+background: var(–card);
+transition: background .15s;
+}
+.accordion-header:hover { background: var(–border); }
+.accordion-header-left { display: flex; align-items: center; gap: 8px; }
+.accordion-icon { font-size: 14px; }
+.accordion-label {
+font-size: 12px; font-weight: 500; letter-spacing: .4px;
+color: var(–ink);
+}
+.accordion-badge {
+font-size: 10px; background: var(–accent); color: #fff;
+border-radius: 10px; padding: 1px 6px; font-weight: 500;
+}
+.accordion-chevron {
+width: 16px; height: 16px; flex-shrink: 0;
+transition: transform .22s ease;
+color: var(–muted);
+}
+.accordion.open .accordion-chevron { transform: rotate(180deg); }
+.accordion-body {
+max-height: 0; overflow: hidden;
+transition: max-height .28s ease, padding .28s ease;
+background: var(–paper2);
+padding: 0 12px;
+}
+.accordion.open .accordion-body {
+max-height: 600px;
+padding: 12px 12px 14px;
+}
+
+/* ── SCROLL TO TOP ── */
+#scroll-top {
+position: fixed; bottom: 28px; right: 28px; z-index: 200;
+width: 42px; height: 42px; border-radius: 50%;
+background: var(–ink); color: var(–paper);
+border: none; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+box-shadow: 0 4px 16px rgba(0,0,0,.18);
+opacity: 0; pointer-events: none;
+transform: translateY(10px);
+transition: opacity .25s, transform .25s;
+}
+#scroll-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+#scroll-top:hover { background: var(–accent); }
+
 /* Responsive */
 @media (max-width: 700px) {
 .layout { grid-template-columns: 1fr; }
@@ -336,40 +388,70 @@ aside { position: static; height: auto; border-right: none; border-bottom: 1.5px
 <div class="layout">
   <!-- SIDEBAR -->
   <aside>
-    <!-- Sources -->
-    <div class="sidebar-section">
-      <div class="sidebar-title">Nguồn báo</div>
-      <div id="source-list"></div>
-      <div class="add-source" style="margin-top:10px">
-        <input type="text" id="new-source-name" placeholder="Tên nguồn (VD: VnExpress)">
-        <input type="text" id="new-source-url" placeholder="RSS URL…">
-        <button class="btn sm" style="width:100%;justify-content:center;margin-top:4px" onclick="addSource()">+ Thêm nguồn</button>
+    <!-- Accordion: Nguồn báo -->
+    <div class="accordion open" id="acc-sources">
+      <div class="accordion-header" onclick="toggleAccordion('acc-sources')">
+        <div class="accordion-header-left">
+          <span class="accordion-icon">📡</span>
+          <span class="accordion-label">Nguồn báo</span>
+          <span class="accordion-badge" id="acc-src-badge">0</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="accordion-body">
+        <div id="source-list"></div>
+        <div class="add-source" style="margin-top:10px">
+          <input type="text" id="new-source-name" placeholder="Tên nguồn (VD: VnExpress)">
+          <input type="text" id="new-source-url" placeholder="RSS URL…">
+          <button class="btn sm" style="width:100%;justify-content:center;margin-top:4px" onclick="addSource()">+ Thêm nguồn</button>
+        </div>
       </div>
     </div>
 
 ```
-<!-- Keyword filter -->
-<div class="sidebar-section">
-  <div class="sidebar-title">Chặn từ khoá</div>
-  <div class="keyword-tags" id="kw-tags"></div>
-  <div class="kw-input-row">
-    <input type="text" id="kw-input" placeholder="Nhập từ khoá…" onkeydown="if(event.key==='Enter')addKeyword()">
-    <button class="btn sm" onclick="addKeyword()">+</button>
+<!-- Accordion: Chặn từ khoá -->
+<div class="accordion open" id="acc-keywords">
+  <div class="accordion-header" onclick="toggleAccordion('acc-keywords')">
+    <div class="accordion-header-left">
+      <span class="accordion-icon">🚫</span>
+      <span class="accordion-label">Chặn từ khoá</span>
+      <span class="accordion-badge" id="acc-kw-badge" style="display:none">0</span>
+    </div>
+    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
   </div>
-  <div class="filter-stats" id="filter-stats">
-    Chưa có từ khoá bị chặn
+  <div class="accordion-body">
+    <div class="keyword-tags" id="kw-tags"></div>
+    <div class="kw-input-row">
+      <input type="text" id="kw-input" placeholder="Nhập từ khoá…" onkeydown="if(event.key==='Enter')addKeyword()">
+      <button class="btn sm" onclick="addKeyword()">+</button>
+    </div>
+    <div class="filter-stats" id="filter-stats">Chưa có từ khoá bị chặn</div>
   </div>
 </div>
 
-<!-- Export/Import -->
-<div class="sidebar-section">
-  <div class="sidebar-title">Xuất / nhập</div>
-  <div style="display:flex;flex-direction:column;gap:6px">
-    <button class="btn sm" style="justify-content:center" onclick="exportKeywords()">📤 Xuất từ khoá .txt</button>
-    <label class="btn sm" style="justify-content:center;cursor:pointer">
-      📥 Nhập từ khoá .txt
-      <input type="file" accept=".txt" style="display:none" onchange="importKeywords(event)">
-    </label>
+<!-- Accordion: Xuất / nhập -->
+<div class="accordion" id="acc-export">
+  <div class="accordion-header" onclick="toggleAccordion('acc-export')">
+    <div class="accordion-header-left">
+      <span class="accordion-icon">💾</span>
+      <span class="accordion-label">Xuất / nhập</span>
+    </div>
+    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
+  <div class="accordion-body">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <button class="btn sm" style="justify-content:center" onclick="exportKeywords()">📤 Xuất từ khoá .txt</button>
+      <label class="btn sm" style="justify-content:center;cursor:pointer">
+        📥 Nhập từ khoá .txt
+        <input type="file" accept=".txt" style="display:none" onchange="importKeywords(event)">
+      </label>
+    </div>
   </div>
 </div>
 ```
@@ -397,6 +479,12 @@ aside { position: static; height: auto; border-right: none; border-bottom: 1.5px
 </div>
 
 <div id="toast"></div>
+
+<button id="scroll-top" onclick="scrollToTop()" title="Lên đầu trang">
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+</button>
 
 <script>
 // ── DEFAULT SOURCES ──
@@ -628,6 +716,10 @@ function renderSources() {
   const container = document.getElementById('source-list');
   const allCount = getFilteredArticles().length;
 
+  // update accordion badge
+  const srcBadge = document.getElementById('acc-src-badge');
+  if (srcBadge) srcBadge.textContent = state.sources.filter(s => s.enabled).length;
+
   let html = `<div class="source-item ${state.activeSource==='all'?'active':''}" onclick="setActiveSource('all')">
     <div class="source-left">
       <div class="source-dot" style="background:var(--ink)"></div>
@@ -693,6 +785,12 @@ function renderKeywords() {
   container.innerHTML = state.keywords.map(kw =>
     `<span class="keyword-tag">${kw}<span class="rm" onclick="removeKeyword('${kw}')">×</span></span>`
   ).join('');
+  // update badge
+  const badge = document.getElementById('acc-kw-badge');
+  if (badge) {
+    badge.style.display = state.keywords.length ? 'inline' : 'none';
+    badge.textContent = state.keywords.length;
+  }
 }
 
 function addKeyword() {
@@ -741,6 +839,29 @@ function toast(msg) {
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2500);
 }
+
+// ── ACCORDION ──
+function toggleAccordion(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── SCROLL TO TOP ──
+function scrollToTop() {
+  document.getElementById('feed').scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const feed = document.getElementById('feed');
+  const btn = document.getElementById('scroll-top');
+  // Watch both window and feed div scroll
+  function onScroll() {
+    const y = window.scrollY || feed.scrollTop;
+    btn.classList.toggle('visible', y > 200);
+  }
+  window.addEventListener('scroll', onScroll);
+  feed.addEventListener('scroll', onScroll);
+});
 
 // ── INIT ──
 function init() {
