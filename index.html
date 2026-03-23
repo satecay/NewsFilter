@@ -285,6 +285,31 @@
   }
   .save-btn:hover, .save-btn.saved { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
+  /* Translate */
+  .translate-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, border-color .15s;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .translate-btn:hover { background: var(--paper2); border-color: var(--ink); }
+  .translate-btn.translating { animation: spin .8s linear infinite; }
+  .card-translated {
+    font-size: var(--desc-size); color: var(--ink);
+    line-height: 1.55; margin-top: 6px;
+    padding: 8px 10px;
+    background: var(--paper2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .card-translated .tl-label {
+    font-size: 10px; font-weight: 500; letter-spacing: .8px;
+    text-transform: uppercase; color: var(--muted);
+    display: block; margin-bottom: 4px;
+  }
+
   /* Highlight match */
   .highlight { background: #ffe0a0; border-radius: 2px; padding: 0 1px; }
 
@@ -556,7 +581,7 @@ const DEFAULT_SOURCES = [
   { id: 's2', name: 'Tuổi Trẻ', url: 'https://tuoitre.vn/rss/tin-moi-nhat.rss', color: '#0097e6', enabled: true },
   { id: 's3', name: 'Thanh Niên', url: 'https://thanhnien.vn/rss/home.rss', color: '#27ae60', enabled: true },
   { id: 's4', name: 'BBC Việt', url: 'https://feeds.bbci.co.uk/vietnamese/rss.xml', color: '#c0392b', enabled: true },
-  { id: 's5', name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', color: '#e67e22', enabled: true },
+  { id: 's5', name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', color: '#e67e22', enabled: false },
 ];
 
 // ── STATE ──
@@ -996,7 +1021,7 @@ function renderFeed() {
     const desc = a.desc ? (search ? highlight(a.desc.slice(0,160), search) : a.desc.slice(0,160)) : '';
     const delay = (idx % 12) * 0.03;
     return `
-      <div class="article-card" style="animation-delay:${delay}s">
+      <div class="article-card" style="animation-delay:${delay}s" data-id="${a.id}">
         ${a.img
           ? `<img class="card-img" src="${a.img}" alt="" loading="lazy" onerror="this.style.display='none'">`
           : `<div class="card-img-placeholder">📰</div>`}
@@ -1007,9 +1032,11 @@ function renderFeed() {
           </div>
           <div class="card-title">${title}</div>
           ${desc ? `<div class="card-desc">${desc}…</div>` : ''}
+          <div class="card-translated" id="tl-${a.id}" style="display:none"></div>
         </div>
         <div class="card-footer">
           <a href="${a.link}" target="_blank" rel="noopener">Đọc bài →</a>
+          <button class="translate-btn" id="tlbtn-${a.id}" onclick="translateCard('${a.id}')" title="Dịch sang tiếng Việt">🌐</button>
           <button class="save-btn ${savedClass}" onclick="toggleSave('${a.id}')" title="${savedClass ? 'Bỏ lưu' : 'Lưu lại'}">🔖</button>
         </div>
       </div>`;
@@ -1239,23 +1266,101 @@ function toggleAccordion(id) {
   document.getElementById(id).classList.toggle('open');
 }
 
-// ── SCROLL TO TOP ──
-function scrollToTop() {
-  document.getElementById('feed').scrollTo({ top: 0, behavior: 'smooth' });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// ── TRANSLATE ──
+// Dùng Google Translate unofficial endpoint — miễn phí, không cần API key
+// Chỉ dịch title + desc, không gọi khi đã dịch rồi
+const translateCache = {}; // { articleId: { title, desc } }
+
+async function translateCard(id) {
+  const btn = document.getElementById(`tlbtn-${id}`);
+  const box = document.getElementById(`tl-${id}`);
+  if (!btn || !box) return;
+
+  // Toggle: nếu đang hiện thì ẩn đi
+  if (box.style.display !== 'none') {
+    box.style.display = 'none';
+    btn.textContent = '🌐';
+    return;
+  }
+
+  // Nếu đã có cache thì hiện lại ngay
+  if (translateCache[id]) {
+    showTranslation(id, translateCache[id]);
+    return;
+  }
+
+  // Tìm bài viết
+  const article = [...state.articles, ...state.saved].find(a => a.id === id);
+  if (!article) return;
+
+  // Kiểm tra ngôn ngữ — chỉ dịch nếu không phải tiếng Việt
+  const isVietnamese = /[àáạảãăắặẳẵâấậẩẫèéẹẻẽêếệểễìíịỉĩòóọỏõôốộổỗơớợởỡùúụủũưứựửữỳýỵỷỹđ]/i.test(article.title);
+  if (isVietnamese) {
+    toast('Bài này đã là tiếng Việt');
+    return;
+  }
+
+  btn.textContent = '⟳';
+  btn.classList.add('translating');
+
+  try {
+    const textToTranslate = [article.title, article.desc || ''].filter(Boolean).join('\n\n---\n\n');
+    const translated = await googleTranslate(textToTranslate, 'vi');
+    const parts = translated.split('\n\n---\n\n');
+    const result = { title: parts[0] || '', desc: parts[1] || '' };
+    translateCache[id] = result;
+    showTranslation(id, result);
+  } catch (e) {
+    toast('Không dịch được — kiểm tra mạng');
+    console.warn('Translate error:', e);
+  } finally {
+    btn.textContent = '🌐';
+    btn.classList.remove('translating');
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function showTranslation(id, result) {
+  const box = document.getElementById(`tl-${id}`);
+  if (!box) return;
+  box.innerHTML = `
+    <span class="tl-label">🇻🇳 Bản dịch</span>
+    <strong style="display:block;margin-bottom:4px;font-size:calc(var(--title-size)*0.85);line-height:1.3">${result.title}</strong>
+    ${result.desc ? `<span>${result.desc}</span>` : ''}
+  `;
+  box.style.display = 'block';
+  document.getElementById(`tlbtn-${id}`)?.setAttribute('title', 'Ẩn bản dịch');
+}
+
+async function googleTranslate(text, targetLang) {
+  // Unofficial Google Translate endpoint
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  // Ghép các đoạn dịch lại
+  return json[0].map(chunk => chunk[0]).join('');
+}
+
+// ── SCROLL TO TOP ──
+function scrollToTop() {
+  // Cuộn cả window lẫn #feed
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   const feed = document.getElementById('feed');
+  if (feed) feed.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Hiện nút khi cuộn xuống > 300px (theo dõi cả window + #feed)
+function initScrollTop() {
   const btn = document.getElementById('scroll-top');
-  // Watch both window and feed div scroll
-  function onScroll() {
-    const y = window.scrollY || feed.scrollTop;
-    btn.classList.toggle('visible', y > 200);
-  }
-  window.addEventListener('scroll', onScroll);
-  feed.addEventListener('scroll', onScroll);
-});
+  if (!btn) return;
+  const feed = document.getElementById('feed');
+  const check = () => {
+    const y = Math.max(window.scrollY, feed ? feed.scrollTop : 0);
+    btn.classList.toggle('visible', y > 300);
+  };
+  window.addEventListener('scroll', check, { passive: true });
+  if (feed) feed.addEventListener('scroll', check, { passive: true });
+}
 
 // ── INIT ──
 function init() {
@@ -1276,6 +1381,7 @@ function init() {
   renderKeywords();
   updateFilterStats();
   updateWorkerBadge();
+  initScrollTop();
 
   // Hiện cache cũ ngay lập tức (nếu có) → không thấy màn hình trắng
   const allStale = [];
