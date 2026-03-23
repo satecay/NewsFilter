@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -30,342 +29,341 @@
     min-height: 100vh;
   }
 
-/* ── TOPBAR ── */
-header {
-position: sticky; top: 0; z-index: 100;
-background: var(–paper);
-border-bottom: 1.5px solid var(–ink);
-display: flex; align-items: center; gap: 16px;
-padding: 0 24px; height: 56px;
-}
-.logo {
-font-family: var(–serif);
-font-size: 22px; letter-spacing: -0.5px;
-white-space: nowrap;
-}
-.logo span { color: var(–accent); font-style: italic; }
-.search-bar {
-flex: 1; position: relative;
-max-width: 420px;
-}
-.search-bar input {
-width: 100%; padding: 7px 12px 7px 36px;
-border: 1.5px solid var(–border);
-border-radius: 20px;
-background: var(–card);
-font-family: var(–sans); font-size: 14px;
-color: var(–ink); outline: none;
-transition: border-color .2s;
-}
-.search-bar input:focus { border-color: var(–accent); }
-.search-bar svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: .4; }
-.btn {
-display: inline-flex; align-items: center; gap: 6px;
-padding: 7px 14px; border-radius: 20px;
-border: 1.5px solid var(–ink);
-font-family: var(–sans); font-size: 13px; font-weight: 500;
-cursor: pointer; background: transparent; color: var(–ink);
-transition: background .15s, color .15s;
-white-space: nowrap;
-}
-.btn:hover { background: var(–ink); color: var(–paper); }
-.btn.primary { background: var(–accent); border-color: var(–accent); color: #fff; }
-.btn.primary:hover { background: #a33a21; border-color: #a33a21; }
-.btn.sm { padding: 4px 10px; font-size: 12px; }
+  /* ── TOPBAR ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--paper);
+    border-bottom: 1.5px solid var(--ink);
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 24px; height: 56px;
+  }
+  .logo {
+    font-family: var(--serif);
+    font-size: 22px; letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--accent); font-style: italic; }
+  .search-bar {
+    flex: 1; position: relative;
+    max-width: 420px;
+  }
+  .search-bar input {
+    width: 100%; padding: 7px 12px 7px 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    background: var(--card);
+    font-family: var(--sans); font-size: 14px;
+    color: var(--ink); outline: none;
+    transition: border-color .2s;
+  }
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: .4; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 20px;
+    border: 1.5px solid var(--ink);
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    cursor: pointer; background: transparent; color: var(--ink);
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #a33a21; border-color: #a33a21; }
+  .btn.sm { padding: 4px 10px; font-size: 12px; }
 
-/* ── LAYOUT ── */
-.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 56px); }
+  /* ── LAYOUT ── */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 56px); }
 
-/* ── SIDEBAR ── */
-aside {
-border-right: 1.5px solid var(–ink);
-padding: 20px 16px;
-position: sticky; top: 56px; height: calc(100vh - 56px);
-overflow-y: auto;
-background: var(–paper2);
-}
-.sidebar-section { margin-bottom: 28px; }
-.sidebar-title {
-font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
-text-transform: uppercase; color: var(–muted);
-margin-bottom: 10px;
-}
+  /* ── SIDEBAR ── */
+  aside {
+    border-right: 1.5px solid var(--ink);
+    padding: 20px 16px;
+    position: sticky; top: 56px; height: calc(100vh - 56px);
+    overflow-y: auto;
+    background: var(--paper2);
+  }
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-title {
+    font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
+  }
 
-/* Sources list */
-.source-item {
-display: flex; align-items: center; justify-content: space-between;
-padding: 6px 8px; border-radius: var(–r);
-cursor: pointer; font-size: 13px;
-transition: background .12s;
-user-select: none;
-}
-.source-item:hover { background: var(–border); }
-.source-item.active { background: var(–ink); color: var(–paper); }
-.source-dot {
-width: 8px; height: 8px; border-radius: 50%;
-margin-right: 8px; flex-shrink: 0;
-}
-.source-left { display: flex; align-items: center; }
-.source-count {
-font-size: 11px; opacity: .5;
-background: rgba(0,0,0,.08); border-radius: 10px;
-padding: 1px 6px;
-}
+  /* Sources list */
+  .source-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 8px; border-radius: var(--r);
+    cursor: pointer; font-size: 13px;
+    transition: background .12s;
+    user-select: none;
+  }
+  .source-item:hover { background: var(--border); }
+  .source-item.active { background: var(--ink); color: var(--paper); }
+  .source-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 8px; flex-shrink: 0;
+  }
+  .source-left { display: flex; align-items: center; }
+  .source-count {
+    font-size: 11px; opacity: .5;
+    background: rgba(0,0,0,.08); border-radius: 10px;
+    padding: 1px 6px;
+  }
 
-/* Add source form */
-.add-source { margin-top: 8px; }
-.add-source input {
-width: 100%; padding: 7px 10px;
-border: 1.5px solid var(–border); border-radius: var(–r);
-font-family: var(–sans); font-size: 13px;
-background: var(–card); color: var(–ink); outline: none;
-margin-bottom: 6px;
-transition: border-color .2s;
-}
-.add-source input:focus { border-color: var(–accent); }
+  /* Add source form */
+  .add-source { margin-top: 8px; }
+  .add-source input {
+    width: 100%; padding: 7px 10px;
+    border: 1.5px solid var(--border); border-radius: var(--r);
+    font-family: var(--sans); font-size: 13px;
+    background: var(--card); color: var(--ink); outline: none;
+    margin-bottom: 6px;
+    transition: border-color .2s;
+  }
+  .add-source input:focus { border-color: var(--accent); }
 
-/* Keyword filter */
-.keyword-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-.keyword-tag {
-display: inline-flex; align-items: center; gap: 4px;
-padding: 3px 8px; border-radius: 12px;
-background: #ffddcc; color: #7a2a10;
-font-size: 12px; font-weight: 500;
-}
-.keyword-tag .rm {
-cursor: pointer; font-size: 14px; line-height: 1;
-opacity: .6; transition: opacity .15s;
-}
-.keyword-tag .rm:hover { opacity: 1; }
-.kw-input-row { display: flex; gap: 6px; }
-.kw-input-row input {
-flex: 1; padding: 7px 10px;
-border: 1.5px solid var(–border); border-radius: var(–r);
-font-family: var(–sans); font-size: 13px;
-background: var(–card); color: var(–ink); outline: none;
-transition: border-color .2s;
-}
-.kw-input-row input:focus { border-color: var(–accent); }
+  /* Keyword filter */
+  .keyword-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .keyword-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 12px;
+    background: #ffddcc; color: #7a2a10;
+    font-size: 12px; font-weight: 500;
+  }
+  .keyword-tag .rm {
+    cursor: pointer; font-size: 14px; line-height: 1;
+    opacity: .6; transition: opacity .15s;
+  }
+  .keyword-tag .rm:hover { opacity: 1; }
+  .kw-input-row { display: flex; gap: 6px; }
+  .kw-input-row input {
+    flex: 1; padding: 7px 10px;
+    border: 1.5px solid var(--border); border-radius: var(--r);
+    font-family: var(--sans); font-size: 13px;
+    background: var(--card); color: var(--ink); outline: none;
+    transition: border-color .2s;
+  }
+  .kw-input-row input:focus { border-color: var(--accent); }
 
-.filter-stats {
-font-size: 12px; color: var(–muted);
-padding: 8px; border-radius: var(–r);
-background: var(–card); border: 1px solid var(–border);
-text-align: center; margin-top: 8px;
-}
-.filter-stats strong { color: var(–accent); }
+  .filter-stats {
+    font-size: 12px; color: var(--muted);
+    padding: 8px; border-radius: var(--r);
+    background: var(--card); border: 1px solid var(--border);
+    text-align: center; margin-top: 8px;
+  }
+  .filter-stats strong { color: var(--accent); }
 
-/* ── MAIN FEED ── */
-main { padding: 0; overflow: hidden; }
+  /* ── MAIN FEED ── */
+  main { padding: 0; overflow: hidden; }
 
-.feed-header {
-padding: 16px 28px 12px;
-border-bottom: 1px solid var(–border);
-display: flex; align-items: center; justify-content: space-between;
-gap: 12px;
-}
-.feed-title { font-family: var(–serif); font-size: 20px; }
-.controls { display: flex; gap: 8px; align-items: center; }
-.sort-select {
-padding: 6px 10px; border: 1.5px solid var(–border);
-border-radius: 20px; font-family: var(–sans); font-size: 13px;
-background: var(–card); color: var(–ink); cursor: pointer; outline: none;
-}
+  .feed-header {
+    padding: 16px 28px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .feed-title { font-family: var(--serif); font-size: 20px; }
+  .controls { display: flex; gap: 8px; align-items: center; }
+  .sort-select {
+    padding: 6px 10px; border: 1.5px solid var(--border);
+    border-radius: 20px; font-family: var(--sans); font-size: 13px;
+    background: var(--card); color: var(--ink); cursor: pointer; outline: none;
+  }
 
-/* News grid */
-#feed {
-padding: 20px 28px;
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-gap: 16px;
-align-content: start;
-max-height: calc(100vh - 130px);
-overflow-y: auto;
-}
+  /* News grid */
+  #feed {
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    align-content: start;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+  }
 
-/* Article card */
-.article-card {
-background: var(–card);
-border: 1.5px solid var(–border);
-border-radius: 10px;
-overflow: hidden;
-display: flex; flex-direction: column;
-transition: border-color .2s, transform .15s, box-shadow .15s;
-animation: fadeUp .3s ease both;
-}
-@keyframes fadeUp {
-from { opacity: 0; transform: translateY(10px); }
-to   { opacity: 1; transform: translateY(0); }
-}
-.article-card:hover {
-border-color: var(–ink);
-transform: translateY(-2px);
-box-shadow: 0 6px 20px rgba(0,0,0,.08);
-}
-.card-img {
-width: 100%; height: 160px; object-fit: cover;
-border-bottom: 1px solid var(–border);
-display: block;
-background: var(–paper2);
-}
-.card-img-placeholder {
-width: 100%; height: 120px;
-background: var(–paper2);
-display: flex; align-items: center; justify-content: center;
-font-size: 28px; color: var(–border);
-}
-.card-body { padding: 10px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.card-source-row { display: flex; align-items: center; justify-content: space-between; }
-.card-source-badge {
-font-size: 10px; font-weight: 500; letter-spacing: .8px;
-text-transform: uppercase; padding: 2px 8px;
-border-radius: 10px; border: 1px solid var(–border);
-color: var(–muted);
-}
-.card-date { font-size: 11px; color: var(–muted); }
-.card-title {
-font-family: var(–serif);
-font-size: 28px; line-height: 1.35;
-color: var(–ink);
-}
-.card-desc {
-font-size: 13px; color: var(–muted);
-line-height: 1.55;
-display: -webkit-box;
--webkit-line-clamp: 3;
--webkit-box-orient: vertical;
-overflow: hidden;
-}
-.card-footer {
-display: flex; gap: 6px; align-items: center;
-padding: 10px 16px 12px;
-border-top: 1px solid var(–border);
-}
-.card-footer a {
-font-size: 12px; font-weight: 500;
-color: var(–accent); text-decoration: none;
-flex: 1;
-}
-.card-footer a:hover { text-decoration: underline; }
-.save-btn {
-width: 28px; height: 28px; border-radius: 50%;
-border: 1.5px solid var(–border);
-background: transparent; cursor: pointer;
-display: flex; align-items: center; justify-content: center;
-transition: background .15s, border-color .15s;
-font-size: 14px;
-}
-.save-btn:hover, .save-btn.saved { background: var(–ink); border-color: var(–ink); color: var(–paper); }
+  /* Article card */
+  .article-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: border-color .2s, transform .15s, box-shadow .15s;
+    animation: fadeUp .3s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .article-card:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  }
+  .card-img {
+    width: 100%; height: 160px; object-fit: cover;
+    border-bottom: 1px solid var(--border);
+    display: block;
+    background: var(--paper2);
+  }
+  .card-img-placeholder {
+    width: 100%; height: 120px;
+    background: var(--paper2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--border);
+  }
+  .card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .card-source-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-source-badge {
+    font-size: 10px; font-weight: 500; letter-spacing: .8px;
+    text-transform: uppercase; padding: 2px 8px;
+    border-radius: 10px; border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .card-date { font-size: 11px; color: var(--muted); }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 25px; line-height: 1.35;
+    color: var(--ink);
+  }
+  .card-desc {
+    font-size: 20px; color: var(--muted);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-footer {
+    display: flex; gap: 6px; align-items: center;
+    padding: 10px 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .card-footer a {
+    font-size: 12px; font-weight: 500;
+    color: var(--accent); text-decoration: none;
+    flex: 1;
+  }
+  .card-footer a:hover { text-decoration: underline; }
+  .save-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, border-color .15s;
+    font-size: 14px;
+  }
+  .save-btn:hover, .save-btn.saved { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
-/* Highlight match */
-.highlight { background: #ffe0a0; border-radius: 2px; padding: 0 1px; }
+  /* Highlight match */
+  .highlight { background: #ffe0a0; border-radius: 2px; padding: 0 1px; }
 
-/* States */
-.empty-state {
-grid-column: 1/-1;
-text-align: center; padding: 60px 20px;
-color: var(–muted);
-}
-.empty-state h3 { font-family: var(–serif); font-size: 22px; margin-bottom: 8px; color: var(–ink); }
-.loading-spinner {
-grid-column: 1/-1;
-display: flex; justify-content: center; padding: 40px;
-}
-.spinner {
-width: 32px; height: 32px;
-border: 2.5px solid var(–border);
-border-top-color: var(–accent);
-border-radius: 50%;
-animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+  /* States */
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center; padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state h3 { font-family: var(--serif); font-size: 22px; margin-bottom: 8px; color: var(--ink); }
+  .loading-spinner {
+    grid-column: 1/-1;
+    display: flex; justify-content: center; padding: 40px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Toast */
-#toast {
-position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-background: var(–ink); color: var(–paper);
-padding: 10px 20px; border-radius: 20px;
-font-size: 13px; font-weight: 500;
-opacity: 0; pointer-events: none;
-transition: opacity .25s;
-z-index: 9999;
-}
-#toast.show { opacity: 1; }
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper);
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+    z-index: 9999;
+  }
+  #toast.show { opacity: 1; }
 
-/* Saved view */
-.view-tabs {
-display: flex; gap: 0;
-border-bottom: 1.5px solid var(–ink);
-}
-.view-tab {
-padding: 10px 20px; font-size: 13px; font-weight: 500;
-cursor: pointer; border: none; background: transparent;
-border-bottom: 2px solid transparent; margin-bottom: -1.5px;
-color: var(–muted); transition: color .15s;
-font-family: var(–sans);
-}
-.view-tab.active { color: var(–ink); border-bottom-color: var(–accent); }
+  /* Saved view */
+  .view-tabs {
+    display: flex; gap: 0;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .view-tab {
+    padding: 10px 20px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; background: transparent;
+    border-bottom: 2px solid transparent; margin-bottom: -1.5px;
+    color: var(--muted); transition: color .15s;
+    font-family: var(--sans);
+  }
+  .view-tab.active { color: var(--ink); border-bottom-color: var(--accent); }
 
-/* ── ACCORDION ── */
-.accordion { margin-bottom: 6px; border: 1.5px solid var(–border); border-radius: 8px; overflow: hidden; }
-.accordion-header {
-display: flex; align-items: center; justify-content: space-between;
-padding: 9px 12px;
-cursor: pointer; user-select: none;
-background: var(–card);
-transition: background .15s;
-}
-.accordion-header:hover { background: var(–border); }
-.accordion-header-left { display: flex; align-items: center; gap: 8px; }
-.accordion-icon { font-size: 14px; }
-.accordion-label {
-font-size: 12px; font-weight: 500; letter-spacing: .4px;
-color: var(–ink);
-}
-.accordion-badge {
-font-size: 10px; background: var(–accent); color: #fff;
-border-radius: 10px; padding: 1px 6px; font-weight: 500;
-}
-.accordion-chevron {
-width: 16px; height: 16px; flex-shrink: 0;
-transition: transform .22s ease;
-color: var(–muted);
-}
-.accordion.open .accordion-chevron { transform: rotate(180deg); }
-.accordion-body {
-max-height: 0; overflow: hidden;
-transition: max-height .28s ease, padding .28s ease;
-background: var(–paper2);
-padding: 0 12px;
-}
-.accordion.open .accordion-body {
-max-height: 600px;
-padding: 12px 12px 14px;
-}
+  /* ── ACCORDION ── */
+  .accordion { margin-bottom: 6px; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .accordion-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px;
+    cursor: pointer; user-select: none;
+    background: var(--card);
+    transition: background .15s;
+  }
+  .accordion-header:hover { background: var(--border); }
+  .accordion-header-left { display: flex; align-items: center; gap: 8px; }
+  .accordion-icon { font-size: 14px; }
+  .accordion-label {
+    font-size: 12px; font-weight: 500; letter-spacing: .4px;
+    color: var(--ink);
+  }
+  .accordion-badge {
+    font-size: 10px; background: var(--accent); color: #fff;
+    border-radius: 10px; padding: 1px 6px; font-weight: 500;
+  }
+  .accordion-chevron {
+    width: 16px; height: 16px; flex-shrink: 0;
+    transition: transform .22s ease;
+    color: var(--muted);
+  }
+  .accordion.open .accordion-chevron { transform: rotate(180deg); }
+  .accordion-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .28s ease, padding .28s ease;
+    background: var(--paper2);
+    padding: 0 12px;
+  }
+  .accordion.open .accordion-body {
+    max-height: 600px;
+    padding: 12px 12px 14px;
+  }
 
-/* ── SCROLL TO TOP ── */
-#scroll-top {
-position: fixed; bottom: 28px; right: 28px; z-index: 200;
-width: 42px; height: 42px; border-radius: 50%;
-background: var(–ink); color: var(–paper);
-border: none; cursor: pointer;
-display: flex; align-items: center; justify-content: center;
-box-shadow: 0 4px 16px rgba(0,0,0,.18);
-opacity: 0; pointer-events: none;
-transform: translateY(10px);
-transition: opacity .25s, transform .25s;
-}
-#scroll-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-#scroll-top:hover { background: var(–accent); }
+  /* ── SCROLL TO TOP ── */
+  #scroll-top {
+    position: fixed; bottom: 28px; right: 28px; z-index: 200;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+    opacity: 0; pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity .25s, transform .25s;
+  }
+  #scroll-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #scroll-top:hover { background: var(--accent); }
 
-/* Responsive */
-@media (max-width: 700px) {
-.layout { grid-template-columns: 1fr; }
-aside { position: static; height: auto; border-right: none; border-bottom: 1.5px solid var(–ink); }
-#feed { max-height: none; }
-}
+  /* Responsive */
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: none; border-bottom: 1.5px solid var(--ink); }
+    #feed { max-height: none; }
+  }
 </style>
-
 </head>
 <body>
 
@@ -410,56 +408,52 @@ aside { position: static; height: auto; border-right: none; border-bottom: 1.5px
       </div>
     </div>
 
-```
-<!-- Accordion: Chặn từ khoá -->
-<div class="accordion open" id="acc-keywords">
-  <div class="accordion-header" onclick="toggleAccordion('acc-keywords')">
-    <div class="accordion-header-left">
-      <span class="accordion-icon">🚫</span>
-      <span class="accordion-label">Chặn từ khoá</span>
-      <span class="accordion-badge" id="acc-kw-badge" style="display:none">0</span>
+    <!-- Accordion: Chặn từ khoá -->
+    <div class="accordion open" id="acc-keywords">
+      <div class="accordion-header" onclick="toggleAccordion('acc-keywords')">
+        <div class="accordion-header-left">
+          <span class="accordion-icon">🚫</span>
+          <span class="accordion-label">Chặn từ khoá</span>
+          <span class="accordion-badge" id="acc-kw-badge" style="display:none">0</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="accordion-body">
+        <div class="keyword-tags" id="kw-tags"></div>
+        <div class="kw-input-row">
+          <input type="text" id="kw-input" placeholder="Nhập từ khoá…" onkeydown="if(event.key==='Enter')addKeyword()">
+          <button class="btn sm" onclick="addKeyword()">+</button>
+        </div>
+        <div class="filter-stats" id="filter-stats">Chưa có từ khoá bị chặn</div>
+      </div>
     </div>
-    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  </div>
-  <div class="accordion-body">
-    <div class="keyword-tags" id="kw-tags"></div>
-    <div class="kw-input-row">
-      <input type="text" id="kw-input" placeholder="Nhập từ khoá…" onkeydown="if(event.key==='Enter')addKeyword()">
-      <button class="btn sm" onclick="addKeyword()">+</button>
-    </div>
-    <div class="filter-stats" id="filter-stats">Chưa có từ khoá bị chặn</div>
-  </div>
-</div>
 
-<!-- Accordion: Xuất / nhập -->
-<div class="accordion" id="acc-export">
-  <div class="accordion-header" onclick="toggleAccordion('acc-export')">
-    <div class="accordion-header-left">
-      <span class="accordion-icon">💾</span>
-      <span class="accordion-label">Xuất / nhập</span>
+    <!-- Accordion: Xuất / nhập -->
+    <div class="accordion" id="acc-export">
+      <div class="accordion-header" onclick="toggleAccordion('acc-export')">
+        <div class="accordion-header-left">
+          <span class="accordion-icon">💾</span>
+          <span class="accordion-label">Xuất / nhập</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="accordion-body">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn sm" style="justify-content:center" onclick="exportKeywords()">📤 Xuất từ khoá .txt</button>
+          <label class="btn sm" style="justify-content:center;cursor:pointer">
+            📥 Nhập từ khoá .txt
+            <input type="file" accept=".txt" style="display:none" onchange="importKeywords(event)">
+          </label>
+        </div>
+      </div>
     </div>
-    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  </div>
-  <div class="accordion-body">
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="btn sm" style="justify-content:center" onclick="exportKeywords()">📤 Xuất từ khoá .txt</button>
-      <label class="btn sm" style="justify-content:center;cursor:pointer">
-        📥 Nhập từ khoá .txt
-        <input type="file" accept=".txt" style="display:none" onchange="importKeywords(event)">
-      </label>
-    </div>
-  </div>
-</div>
-```
-
   </aside>
 
   <!-- MAIN -->
-
   <main>
     <div class="view-tabs">
       <button class="view-tab active" onclick="switchView('feed', this)">📰 Tất cả tin</button>
@@ -513,71 +507,169 @@ function save() {
   localStorage.setItem('nf_saved', JSON.stringify(state.saved));
 }
 
-// ── PROXY ──
-// Using allorigins for CORS bypass
-function proxyUrl(url) {
-  return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+// ── FETCH CONFIG ──
+const CACHE_TTL = 5 * 60 * 1000; // 5 phút
+const FETCH_TIMEOUT = 8000;       // 8 giây per source
+
+// rss2json: trả JSON sẵn, nhanh hơn allorigins nhiều
+function rss2jsonUrl(rssUrl) {
+  return `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=&count=20`;
+}
+// allorigins làm fallback nếu rss2json fail
+function alloriginsUrl(rssUrl) {
+  return `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
 }
 
-// ── RSS PARSER ──
-function parseRSS(xmlText, source) {
+// ── CACHE ──
+function cacheKey(sourceId) { return `nf_cache_${sourceId}`; }
+
+function readCache(sourceId) {
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlText, 'text/xml');
-    const items = [...doc.querySelectorAll('item')];
-    return items.slice(0, 20).map((item, i) => {
+    const raw = localStorage.getItem(cacheKey(sourceId));
+    if (!raw) return null;
+    const { ts, articles } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) return null; // hết hạn
+    return articles;
+  } catch { return null; }
+}
+
+function writeCache(sourceId, articles) {
+  try {
+    localStorage.setItem(cacheKey(sourceId), JSON.stringify({ ts: Date.now(), articles }));
+  } catch {}
+}
+
+function readStaleCache(sourceId) {
+  // trả cache cũ dù hết hạn, dùng khi mạng chậm
+  try {
+    const raw = localStorage.getItem(cacheKey(sourceId));
+    return raw ? JSON.parse(raw).articles : null;
+  } catch { return null; }
+}
+
+// ── FETCH WITH TIMEOUT ──
+function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
+// ── PARSERS ──
+function parseRss2json(json, source) {
+  if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
+  return json.items.slice(0, 20).map((item, i) => ({
+    id: `${source.id}_${i}_${Date.now()}`,
+    sourceId: source.id,
+    sourceName: source.name,
+    sourceColor: source.color,
+    title: item.title?.trim() || '',
+    link: item.link?.trim() || '',
+    desc: (item.description || item.content || '').replace(/<[^>]+>/g, '').trim(),
+    pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+    img: item.thumbnail || item.enclosure?.link || '',
+    saved: false,
+  })).filter(a => a.title && a.link);
+}
+
+function parseAllorigins(xmlText, source) {
+  try {
+    const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+    return [...doc.querySelectorAll('item')].slice(0, 20).map((item, i) => {
       const title = item.querySelector('title')?.textContent?.trim() || '';
-      const link = item.querySelector('link')?.textContent?.trim() || '';
-      const desc = item.querySelector('description')?.textContent?.replace(/<[^>]+>/g,'').trim() || '';
+      const link  = item.querySelector('link')?.textContent?.trim() || '';
+      const desc  = (item.querySelector('description')?.textContent || '').replace(/<[^>]+>/g,'').trim();
       const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
       const enclosure = item.querySelector('enclosure');
-      const mediaThumbnail = item.querySelector('thumbnail') || item.querySelector('[url]');
-      let img = enclosure?.getAttribute('url') || mediaThumbnail?.getAttribute('url') || '';
-      // try media:content
-      if (!img) {
-        const mc = item.querySelector('content');
-        img = mc?.getAttribute('url') || '';
-      }
+      const thumb = item.querySelector('thumbnail') || item.querySelector('[url]');
+      let img = enclosure?.getAttribute('url') || thumb?.getAttribute('url') || '';
+      if (!img) img = item.querySelector('content')?.getAttribute('url') || '';
       return {
         id: `${source.id}_${i}_${Date.now()}`,
-        sourceId: source.id,
-        sourceName: source.name,
-        sourceColor: source.color,
-        title,
-        link,
-        desc,
-        pubDate: pubDate ? new Date(pubDate) : new Date(),
-        img,
-        saved: false,
+        sourceId: source.id, sourceName: source.name, sourceColor: source.color,
+        title, link, desc, pubDate: pubDate ? new Date(pubDate) : new Date(), img, saved: false,
       };
     }).filter(a => a.title && a.link);
-  } catch(e) { return []; }
+  } catch { return []; }
 }
 
-// ── FETCH ──
+// ── FETCH ONE SOURCE (rss2json → fallback allorigins) ──
 async function fetchSource(source) {
+  // 1. thử rss2json trước (nhanh nhất)
   try {
-    const res = await fetch(proxyUrl(source.url));
+    const res = await fetchWithTimeout(rss2jsonUrl(source.url), FETCH_TIMEOUT);
     const json = await res.json();
-    return parseRSS(json.contents, source);
-  } catch(e) {
-    console.warn('Failed:', source.name, e);
-    return [];
-  }
+    const articles = parseRss2json(json, source);
+    if (articles && articles.length > 0) {
+      writeCache(source.id, articles);
+      return articles;
+    }
+  } catch (e) { /* timeout hoặc lỗi mạng → thử fallback */ }
+
+  // 2. fallback: allorigins
+  try {
+    const res = await fetchWithTimeout(alloriginsUrl(source.url), FETCH_TIMEOUT);
+    const json = await res.json();
+    const articles = parseAllorigins(json.contents, source);
+    if (articles.length > 0) {
+      writeCache(source.id, articles);
+      return articles;
+    }
+  } catch {}
+
+  // 3. trả cache cũ nếu có (dù hết hạn)
+  return readStaleCache(source.id) || [];
 }
 
+// ── FETCH ALL (stale-while-revalidate) ──
 async function fetchAll() {
   const enabled = state.sources.filter(s => s.enabled);
   if (!enabled.length) { toast('Không có nguồn nào được bật!'); return; }
-  showLoading();
-  state.articles = [];
-  const results = await Promise.allSettled(enabled.map(s => fetchSource(s)));
-  results.forEach(r => { if(r.status === 'fulfilled') state.articles.push(...r.value); });
-  // Mark saved
-  state.articles.forEach(a => { a.saved = state.saved.some(s => s.link === a.link); });
-  renderFeed();
-  updateFilterStats();
-  toast(`Đã tải ${state.articles.length} bài từ ${enabled.length} nguồn`);
+
+  // Bước 1: hiện cache ngay lập tức nếu có → UX nhanh
+  const cached = [];
+  let allCached = true;
+  enabled.forEach(s => {
+    const c = readCache(s.id);
+    if (c) cached.push(...c);
+    else allCached = false;
+  });
+
+  if (cached.length > 0) {
+    state.articles = cached;
+    state.articles.forEach(a => { a.saved = state.saved.some(s => s.link === a.link); });
+    renderFeed(); updateFilterStats();
+    if (allCached) {
+      toast('Đang dùng cache — đang tải mới nền…');
+    }
+  } else {
+    showLoading();
+  }
+
+  // Bước 2: fetch thật song song, cập nhật dần khi từng source xong
+  state.articles = [...cached]; // giữ cache trong lúc chờ
+  let freshCount = 0;
+
+  const promises = enabled.map(async s => {
+    // skip nếu cache còn mới
+    const c = readCache(s.id);
+    if (c) return; // đã có, không cần fetch lại ngay
+
+    const articles = await fetchSource(s);
+    if (articles.length > 0) {
+      // thay thế bài cũ của source này bằng bài mới
+      state.articles = state.articles.filter(a => a.sourceId !== s.id);
+      state.articles.push(...articles);
+      state.articles.forEach(a => { a.saved = state.saved.some(sv => sv.link === a.link); });
+      freshCount++;
+      renderFeed(); updateFilterStats(); // cập nhật UI ngay khi có nguồn mới
+    }
+  });
+
+  await Promise.allSettled(promises);
+
+  if (freshCount > 0) toast(`Đã cập nhật ${freshCount} nguồn mới`);
+  else if (cached.length > 0) toast('Tin tức đã được cập nhật');
+  else toast('Không tải được tin — kiểm tra mạng');
 }
 
 // ── FILTER ──
@@ -868,18 +960,31 @@ function init() {
   renderSources();
   renderKeywords();
   updateFilterStats();
-  // Show empty state, prompt user to load
-  document.getElementById('feed').innerHTML = `
-    <div class="empty-state">
-      <h3>Chào mừng đến NewsFilter 👋</h3>
-      <p>Bấm <strong>Tải lại</strong> để lấy tin tức từ các nguồn báo.</p>
-    </div>`;
-  // Auto-fetch on load
+
+  // Hiện cache cũ ngay lập tức (nếu có) → không thấy màn hình trắng
+  const allStale = [];
+  state.sources.filter(s => s.enabled).forEach(s => {
+    const c = readStaleCache(s.id);
+    if (c) allStale.push(...c);
+  });
+
+  if (allStale.length > 0) {
+    state.articles = allStale;
+    state.articles.forEach(a => { a.saved = state.saved.some(s => s.link === a.link); });
+    renderFeed(); updateFilterStats();
+  } else {
+    document.getElementById('feed').innerHTML = `
+      <div class="empty-state">
+        <h3>Chào mừng đến NewsFilter 👋</h3>
+        <p>Đang tải tin tức…</p>
+      </div>`;
+  }
+
+  // Fetch mới nền
   fetchAll();
 }
 
 init();
 </script>
-
 </body>
 </html>
