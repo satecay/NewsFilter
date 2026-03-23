@@ -7,6 +7,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+  /* ============================================================
+     ✏️  TYPOGRAPHY — chỉnh tại đây, áp dụng toàn app
+     ============================================================ */
+  :root {
+    /* Font families */
+    --serif: 'Roboto Slab', Georgia, serif;   /* tiêu đề bài */
+    --sans:  'Roboto', system-ui, sans-serif; /* body, UI    */
+
+    /* Card sizes */
+    --title-size: 25px;   /* .card-title  */
+    --desc-size:  20px;   /* .card-desc   */
+
+    /* UI sizes (sidebar, badge, button…) — thường không cần đổi */
+    --ui-sm:  11px;
+    --ui-md:  13px;
+    --ui-lg:  15px;
+  }
+  /* ============================================================ */
+
   :root {
     --ink: #0f0e0c;
     --paper: #f5f2ec;
@@ -16,8 +35,6 @@
     --muted: #7a7567;
     --border: #d4cfc4;
     --card: #faf8f4;
-    --serif: 'Roboto Slab', Georgia, serif;
-    --sans: 'Roboto', system-ui, sans-serif;
     --r: 6px;
   }
   [data-theme="dark"] {
@@ -235,11 +252,11 @@
   .card-date { font-size: 11px; color: var(--muted); }
   .card-title {
     font-family: var(--serif);
-    font-size: 25px; line-height: 1.35;
+    font-size: var(--title-size); line-height: 1.3;
     color: var(--ink);
   }
   .card-desc {
-    font-size: 20px; color: var(--muted);
+    font-size: var(--desc-size); color: var(--muted);
     line-height: 1.55;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -463,6 +480,40 @@
           <span class="accordion-label">Xuất / nhập</span>
         </div>
         <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+
+    <!-- Accordion: Cloudflare Worker -->
+    <div class="accordion open" id="acc-worker">
+      <div class="accordion-header" onclick="toggleAccordion('acc-worker')">
+        <div class="accordion-header-left">
+          <span class="accordion-icon">⚙️</span>
+          <span class="accordion-label">Cloudflare Worker</span>
+          <span id="worker-status-badge" style="font-size:10px;padding:1px 6px;border-radius:10px;background:var(--border);color:var(--muted)">chưa cài</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">Dán URL Worker của bạn để fetch báo VN không bị chặn. <a href="#" onclick="showWorkerHelp();return false;" style="color:var(--accent)">Hướng dẫn →</a></p>
+        <input type="text" id="worker-url-input" placeholder="https://your-worker.workers.dev"
+          style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;background:var(--card);color:var(--ink);outline:none;margin-bottom:6px">
+        <div style="display:flex;gap:6px">
+          <button class="btn sm" style="flex:1;justify-content:center" onclick="saveWorkerUrl()">💾 Lưu</button>
+          <button class="btn sm" style="justify-content:center" onclick="testWorker()">🔍 Test</button>
+          <button class="btn sm" style="justify-content:center;color:var(--accent);border-color:var(--accent)" onclick="clearWorkerUrl()">✕</button>
+        </div>
+        <div id="worker-test-result" style="font-size:11px;margin-top:6px;display:none;padding:6px 8px;border-radius:4px;line-height:1.4"></div>
+      </div>
+    </div>
+
+    <!-- Accordion: Xuất / nhập -->
+    <div class="accordion" id="acc-export">
+      <div class="accordion-header" onclick="toggleAccordion('acc-export')">
+        <div class="accordion-header-left">
+          <span class="accordion-icon">💾</span>
+          <span class="accordion-label">Xuất / nhập</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </div>
@@ -563,76 +614,214 @@ function readStaleCache(sourceId) {
   } catch { return null; }
 }
 
-// ── PROXY CHAIN ──
-// Thử lần lượt 4 proxy, proxy nào thành công dùng tiếp cho lần sau
-const PROXIES = [
-  {
-    name: 'rss2json',
-    url: rssUrl => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=20`,
-    parse: (data, source) => {
-      const json = typeof data === 'string' ? JSON.parse(data) : data;
-      if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
-      return json.items.slice(0, 20).map((item, i) => {
-        // Tìm ảnh: thumbnail → enclosure → đào trong description HTML
-        let img = item.thumbnail || item.enclosure?.link || '';
-        if (!img) {
-          const html = item.description || item.content || '';
-          const m = html.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif)[^"']*)/i);
-          if (m) img = m[1];
-        }
-        if (!img) {
-          const html = item.description || item.content || '';
-          const m = html.match(/https?:\/\/[^\s"'<>]+\.(jpg|jpeg|png|webp)(\?[^\s"'<>]*)?/i);
-          if (m) img = m[0];
-        }
-        return {
-          id: `${source.id}_${i}_${Date.now()}`,
-          sourceId: source.id, sourceName: source.name, sourceColor: source.color,
-          title: item.title?.trim() || '',
-          link: item.link?.trim() || '',
-          desc: (item.description || item.content || '').replace(/<[^>]+>/g,'').trim(),
-          pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
-          img, saved: false,
-        };
-      }).filter(a => a.title && a.link);
-    },
-    isJson: true,
-  },
-  {
-    name: 'allorigins',
-    url: rssUrl => `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
-    parse: (data, source) => parseXml(typeof data === 'string' ? data : data.contents, source),
-    isJson: true,
-    extract: d => d.contents,
-  },
-  {
-    name: 'corsproxy.io',
-    url: rssUrl => `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
-    parse: (data, source) => parseXml(data, source),
-    isJson: false,
-  },
-  {
-    name: 'htmldriven',
-    url: rssUrl => `https://cors-anywhere.herokuapp.com/${rssUrl}`,
-    parse: (data, source) => parseXml(data, source),
-    isJson: false,
-  },
-];
+// ── WORKER SETTINGS ──
+function getWorkerUrl() {
+  return (localStorage.getItem('nf_worker_url') || '').trim().replace(/\/$/, '');
+}
 
-// lưu proxy nào thành công cho từng source để dùng lại
+function saveWorkerUrl() {
+  const raw = document.getElementById('worker-url-input').value.trim().replace(/\/$/, '');
+  if (!raw) { toast('Vui lòng nhập URL Worker'); return; }
+  try { new URL(raw); } catch { toast('URL không hợp lệ'); return; }
+  localStorage.setItem('nf_worker_url', raw);
+  // xoá cache proxy để fetch lại qua worker
+  Object.keys(localStorage).filter(k => k.startsWith('nf_cache_') || k === 'nf_proxy_pref')
+    .forEach(k => localStorage.removeItem(k));
+  updateWorkerBadge();
+  toast('✓ Đã lưu Worker URL — đang tải lại…');
+  setTimeout(fetchAll, 500);
+}
+
+function clearWorkerUrl() {
+  localStorage.removeItem('nf_worker_url');
+  document.getElementById('worker-url-input').value = '';
+  updateWorkerBadge();
+  toast('Đã xoá Worker URL');
+}
+
+async function testWorker() {
+  const url = getWorkerUrl();
+  const resultEl = document.getElementById('worker-test-result');
+  resultEl.style.display = 'block';
+  if (!url) {
+    resultEl.style.background = '#fff3cd'; resultEl.style.color = '#856404';
+    resultEl.textContent = '⚠ Chưa nhập URL Worker'; return;
+  }
+  resultEl.style.background = 'var(--paper2)'; resultEl.style.color = 'var(--muted)';
+  resultEl.textContent = '⟳ Đang test…';
+  try {
+    const testRss = 'https://vnexpress.net/rss/tin-moi-nhat.rss';
+    const res = await fetchWithTimeout(`${url}/proxy?url=${encodeURIComponent(testRss)}`, 10000);
+    const json = await res.json();
+    if (json.status === 'ok' && json.items?.length > 0) {
+      resultEl.style.background = '#d1e7dd'; resultEl.style.color = '#0a3622';
+      resultEl.textContent = `✓ Hoạt động! Lấy được ${json.items.length} bài từ VnExpress.`;
+      updateWorkerBadge(true);
+    } else {
+      resultEl.style.background = '#f8d7da'; resultEl.style.color = '#58151c';
+      resultEl.textContent = `✕ Worker phản hồi nhưng không có dữ liệu: ${JSON.stringify(json).slice(0,80)}`;
+    }
+  } catch (e) {
+    resultEl.style.background = '#f8d7da'; resultEl.style.color = '#58151c';
+    resultEl.textContent = `✕ Lỗi kết nối: ${e.message}`;
+  }
+}
+
+function updateWorkerBadge(ok) {
+  const badge = document.getElementById('worker-status-badge');
+  const url = getWorkerUrl();
+  const input = document.getElementById('worker-url-input');
+  if (input && url) input.value = url;
+  if (!badge) return;
+  if (!url) {
+    badge.style.background = 'var(--border)'; badge.style.color = 'var(--muted)';
+    badge.textContent = 'chưa cài'; return;
+  }
+  if (ok === true) {
+    badge.style.background = '#d1e7dd'; badge.style.color = '#0a3622';
+    badge.textContent = 'hoạt động';
+  } else {
+    badge.style.background = '#cfe2ff'; badge.style.color = '#084298';
+    badge.textContent = 'đã cài';
+  }
+}
+
+function showWorkerHelp() {
+  toast('Xem file DEPLOY.md đã tải về cùng app để biết cách deploy Worker miễn phí!');
+}
+
+// ── PROXY CHAIN ──
 const proxyPreference = JSON.parse(localStorage.getItem('nf_proxy_pref') || '{}');
 
+// Parse Worker JSON response
+function parseWorkerResponse(json, source) {
+  if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
+  return json.items.map((item, i) => ({
+    id: `${source.id}_${i}_${Date.now()}`,
+    sourceId: source.id, sourceName: source.name, sourceColor: source.color,
+    title: item.title?.trim() || '',
+    link:  item.link?.trim()  || '',
+    desc:  item.desc  || '',
+    pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+    img: item.img || '',
+    saved: false,
+  })).filter(a => a.title && a.link);
+}
+
+// Parse rss2json.com JSON
+function parseRss2jsonResponse(json, source) {
+  if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
+  return json.items.slice(0, 20).map((item, i) => {
+    let img = item.thumbnail || item.enclosure?.link || '';
+    if (!img) {
+      const html = item.description || item.content || '';
+      const m = html.match(/<img[^>]+src=["']([^"']+)/i);
+      if (m) img = m[1];
+    }
+    return {
+      id: `${source.id}_${i}_${Date.now()}`,
+      sourceId: source.id, sourceName: source.name, sourceColor: source.color,
+      title: item.title?.trim() || '',
+      link:  item.link?.trim()  || '',
+      desc:  (item.description || item.content || '').replace(/<[^>]+>/g,'').trim().slice(0,300),
+      pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+      img, saved: false,
+    };
+  }).filter(a => a.title && a.link);
+}
+
+// ── FETCH WITH TIMEOUT ──
+function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
+// ── FETCH ONE SOURCE ──
+async function fetchSource(source) {
+  setSourceStatus(source.id, 'loading');
+  const workerBase = getWorkerUrl();
+
+  // ── 1. Cloudflare Worker (ưu tiên tuyệt đối nếu đã cài) ──
+  if (workerBase) {
+    try {
+      const url = `${workerBase}/proxy?url=${encodeURIComponent(source.url)}`;
+      const res = await fetchWithTimeout(url, FETCH_TIMEOUT);
+      if (res.ok) {
+        const json = await res.json();
+        const articles = parseWorkerResponse(json, source);
+        if (articles && articles.length > 0) {
+          writeCache(source.id, articles);
+          setSourceStatus(source.id, 'ok');
+          updateWorkerBadge(true);
+          return articles;
+        }
+      }
+    } catch {}
+  }
+
+  // ── 2. rss2json.com ──
+  try {
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}&count=20`;
+    const res = await fetchWithTimeout(url, FETCH_TIMEOUT);
+    if (res.ok) {
+      const json = await res.json();
+      const articles = parseRss2jsonResponse(json, source);
+      if (articles && articles.length > 0) {
+        writeCache(source.id, articles);
+        setSourceStatus(source.id, 'ok');
+        return articles;
+      }
+    }
+  } catch {}
+
+  // ── 3. allorigins ──
+  try {
+    const url = `https://api.allorigins.win/get?url=${encodeURIComponent(source.url)}`;
+    const res = await fetchWithTimeout(url, FETCH_TIMEOUT);
+    if (res.ok) {
+      const json = await res.json();
+      const articles = parseXml(json.contents, source);
+      if (articles.length > 0) {
+        writeCache(source.id, articles);
+        setSourceStatus(source.id, 'ok');
+        return articles;
+      }
+    }
+  } catch {}
+
+  // ── 4. corsproxy.io ──
+  try {
+    const url = `https://corsproxy.io/?${encodeURIComponent(source.url)}`;
+    const res = await fetchWithTimeout(url, FETCH_TIMEOUT);
+    if (res.ok) {
+      const articles = parseXml(await res.text(), source);
+      if (articles.length > 0) {
+        writeCache(source.id, articles);
+        setSourceStatus(source.id, 'ok');
+        return articles;
+      }
+    }
+  } catch {}
+
+  // ── 5. Stale cache ──
+  setSourceStatus(source.id, 'error');
+  return readStaleCache(source.id) || [];
+}
+
+// ── XML PARSER (dùng cho allorigins / corsproxy) ──
 function parseXml(xmlText, source) {
   if (!xmlText) return [];
   try {
     const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
     if (doc.querySelector('parsererror')) return [];
     return [...doc.querySelectorAll('item')].slice(0, 20).map((item, i) => {
-      const title = item.querySelector('title')?.textContent?.trim() || '';
-      const link  = item.querySelector('link')?.textContent?.trim() || '';
-      const desc  = (item.querySelector('description')?.textContent || '').replace(/<[^>]+>/g,'').trim();
+      const title   = item.querySelector('title')?.textContent?.trim() || '';
+      const link    = item.querySelector('link')?.textContent?.trim() || '';
       const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
-      const img = extractImageFromItem(item);
+      const rawDesc = item.querySelector('description')?.textContent || '';
+      const desc    = rawDesc.replace(/<[^>]+>/g,'').trim().slice(0, 300);
+      const img     = extractImageFromItem(item, rawDesc);
       return {
         id: `${source.id}_${i}_${Date.now()}`,
         sourceId: source.id, sourceName: source.name, sourceColor: source.color,
@@ -644,90 +833,37 @@ function parseXml(xmlText, source) {
   } catch { return []; }
 }
 
-// Tìm ảnh từ mọi dạng tag phổ biến trong RSS báo VN
-function extractImageFromItem(item) {
-  // 1. <enclosure url="..." type="image/..."/>
+function extractImageFromItem(item, rawDesc = '') {
+  // 1. <enclosure type="image/...">
   const enc = item.querySelector('enclosure');
-  if (enc?.getAttribute('url') && (enc.getAttribute('type') || '').startsWith('image')) {
+  if (enc?.getAttribute('url') && (enc.getAttribute('type') || '').includes('image'))
     return enc.getAttribute('url');
-  }
-  // 2. <media:thumbnail url="..."/> hoặc <media:content url="..."/>
-  const mediaTags = ['media\\:thumbnail', 'thumbnail', 'media\\:content'];
-  for (const tag of mediaTags) {
+
+  // 2. <media:thumbnail> / <media:content> / <thumbnail>
+  for (const tag of ['media\\:thumbnail','thumbnail','media\\:content']) {
     try {
-      const el = item.querySelector(tag);
-      const u = el?.getAttribute('url');
+      const u = item.querySelector(tag)?.getAttribute('url');
       if (u) return u;
     } catch {}
   }
-  // 3. Fallback: querySelectorAll tìm bất kỳ element nào có attribute url trỏ tới ảnh
-  const allWithUrl = item.querySelectorAll('[url]');
-  for (const el of allWithUrl) {
+
+  // 3. Bất kỳ [url] attribute trỏ tới ảnh
+  for (const el of item.querySelectorAll('[url]')) {
     const u = el.getAttribute('url');
     if (u && /\.(jpg|jpeg|png|webp|gif)/i.test(u)) return u;
   }
-  // 4. Đào trong nội dung description/content:encoded tìm thẻ <img src="...">
-  const rawHtml = item.querySelector('description')?.textContent
-    || item.querySelector('encoded')?.textContent // content:encoded
-    || '';
-  const imgMatch = rawHtml.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif)[^"']*)/i);
-  if (imgMatch) return imgMatch[1];
-  // 5. Tìm URL ảnh thô trong bất kỳ text nào của item
+
+  // 4. <img src="..."> trong description (Google News để ảnh ở đây)
+  const descHtml = rawDesc || item.querySelector('description')?.textContent || '';
+  const imgTag = descHtml.match(/<img[^>]+src=["']([^"']+)/i);
+  if (imgTag) return imgTag[1];
+
+  // 5. URL ảnh thô trong toàn bộ text item
   const fullText = item.textContent || '';
-  const urlMatch = fullText.match(/https?:\/\/[^\s"'<>]+\.(jpg|jpeg|png|webp)(\?[^\s"'<>]*)?/i);
-  if (urlMatch) return urlMatch[0];
+  const rawUrl = fullText.match(/https?:\/\/[^\s"'<>]+\.(jpg|jpeg|png|webp)(\?[^\s"'<>]*)?/i);
+  if (rawUrl) return rawUrl[0];
+
   return '';
-}
-
-// ── FETCH WITH TIMEOUT ──
-function fetchWithTimeout(url, ms) {
-  const ctrl = new AbortController();
-  const id = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
-}
-
-// ── FETCH ONE SOURCE — thử proxy ưa thích trước, rồi thử hết chain ──
-async function fetchSource(source) {
-  setSourceStatus(source.id, 'loading');
-
-  // sắp xếp: proxy đã biết thành công lên đầu
-  const pref = proxyPreference[source.id];
-  const ordered = pref
-    ? [PROXIES.find(p => p.name === pref), ...PROXIES.filter(p => p.name !== pref)].filter(Boolean)
-    : PROXIES;
-
-  for (const proxy of ordered) {
-    try {
-      const proxyUrl = proxy.url(source.url);
-      const res = await fetchWithTimeout(proxyUrl, FETCH_TIMEOUT);
-      if (!res.ok) continue;
-
-      let data;
-      if (proxy.isJson) {
-        data = await res.json();
-        if (proxy.extract) data = proxy.extract(data);
-      } else {
-        data = await res.text();
-      }
-
-      const articles = proxy.parse(proxy.isJson && !proxy.extract ? data : { contents: data, ...data }, source);
-      // nếu parse trả null (rss2json format) thì thử lại đúng
-      const finalArticles = Array.isArray(articles) ? articles
-        : proxy.name === 'rss2json' ? proxy.parse(data, source)
-        : [];
-
-      if (finalArticles && finalArticles.length > 0) {
-        writeCache(source.id, finalArticles);
-        proxyPreference[source.id] = proxy.name;
-        localStorage.setItem('nf_proxy_pref', JSON.stringify(proxyPreference));
-        setSourceStatus(source.id, 'ok');
-        return finalArticles;
-      }
-    } catch { /* thử proxy tiếp theo */ }
-  }
-
-  setSourceStatus(source.id, 'error');
-  return readStaleCache(source.id) || [];
 }
 
 // ── SOURCE STATUS INDICATOR ──
@@ -1106,6 +1242,7 @@ function init() {
   renderSources();
   renderKeywords();
   updateFilterStats();
+  updateWorkerBadge();
 
   // Hiện cache cũ ngay lập tức (nếu có) → không thấy màn hình trắng
   const allStale = [];
