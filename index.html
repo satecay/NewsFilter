@@ -234,7 +234,7 @@
   }
   .card-date { font-size: 11px; color: var(--muted); }
   .card-title {
-    font-family: var(--Georgia);
+    font-family: var(--serif);
     font-size: 25px; line-height: 1.35;
     color: var(--ink);
   }
@@ -512,7 +512,7 @@ const DEFAULT_SOURCES = [
   { id: 's2', name: 'Tuổi Trẻ', url: 'https://tuoitre.vn/rss/tin-moi-nhat.rss', color: '#0097e6', enabled: true },
   { id: 's3', name: 'Thanh Niên', url: 'https://thanhnien.vn/rss/home.rss', color: '#27ae60', enabled: true },
   { id: 's4', name: 'BBC Việt', url: 'https://feeds.bbci.co.uk/vietnamese/rss.xml', color: '#c0392b', enabled: true },
-  { id: 's5', name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', color: '#e67e22', enabled: true },
+  { id: 's5', name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', color: '#e67e22', enabled: false },
 ];
 
 // ── STATE ──
@@ -537,14 +537,6 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 phút
 const FETCH_TIMEOUT = 8000;       // 8 giây per source
 
 // rss2json: trả JSON sẵn, nhanh hơn allorigins nhiều
-function rss2jsonUrl(rssUrl) {
-  return `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=&count=20`;
-}
-// allorigins làm fallback nếu rss2json fail
-function alloriginsUrl(rssUrl) {
-  return `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-}
-
 // ── CACHE ──
 function cacheKey(sourceId) { return `nf_cache_${sourceId}`; }
 
@@ -553,7 +545,7 @@ function readCache(sourceId) {
     const raw = localStorage.getItem(cacheKey(sourceId));
     if (!raw) return null;
     const { ts, articles } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) return null; // hết hạn
+    if (Date.now() - ts > CACHE_TTL) return null;
     return articles;
   } catch { return null; }
 }
@@ -565,40 +557,63 @@ function writeCache(sourceId, articles) {
 }
 
 function readStaleCache(sourceId) {
-  // trả cache cũ dù hết hạn, dùng khi mạng chậm
   try {
     const raw = localStorage.getItem(cacheKey(sourceId));
     return raw ? JSON.parse(raw).articles : null;
   } catch { return null; }
 }
 
-// ── FETCH WITH TIMEOUT ──
-function fetchWithTimeout(url, ms) {
-  const ctrl = new AbortController();
-  const id = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
-}
+// ── PROXY CHAIN ──
+// Thử lần lượt 4 proxy, proxy nào thành công dùng tiếp cho lần sau
+const PROXIES = [
+  {
+    name: 'rss2json',
+    url: rssUrl => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=20`,
+    parse: (data, source) => {
+      const json = typeof data === 'string' ? JSON.parse(data) : data;
+      if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
+      return json.items.slice(0, 20).map((item, i) => ({
+        id: `${source.id}_${i}_${Date.now()}`,
+        sourceId: source.id, sourceName: source.name, sourceColor: source.color,
+        title: item.title?.trim() || '',
+        link: item.link?.trim() || '',
+        desc: (item.description || item.content || '').replace(/<[^>]+>/g,'').trim(),
+        pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+        img: item.thumbnail || item.enclosure?.link || '',
+        saved: false,
+      })).filter(a => a.title && a.link);
+    },
+    isJson: true,
+  },
+  {
+    name: 'allorigins',
+    url: rssUrl => `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
+    parse: (data, source) => parseXml(typeof data === 'string' ? data : data.contents, source),
+    isJson: true,
+    extract: d => d.contents,
+  },
+  {
+    name: 'corsproxy.io',
+    url: rssUrl => `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+    parse: (data, source) => parseXml(data, source),
+    isJson: false,
+  },
+  {
+    name: 'htmldriven',
+    url: rssUrl => `https://cors-anywhere.herokuapp.com/${rssUrl}`,
+    parse: (data, source) => parseXml(data, source),
+    isJson: false,
+  },
+];
 
-// ── PARSERS ──
-function parseRss2json(json, source) {
-  if (json.status !== 'ok' || !Array.isArray(json.items)) return null;
-  return json.items.slice(0, 20).map((item, i) => ({
-    id: `${source.id}_${i}_${Date.now()}`,
-    sourceId: source.id,
-    sourceName: source.name,
-    sourceColor: source.color,
-    title: item.title?.trim() || '',
-    link: item.link?.trim() || '',
-    desc: (item.description || item.content || '').replace(/<[^>]+>/g, '').trim(),
-    pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
-    img: item.thumbnail || item.enclosure?.link || '',
-    saved: false,
-  })).filter(a => a.title && a.link);
-}
+// lưu proxy nào thành công cho từng source để dùng lại
+const proxyPreference = JSON.parse(localStorage.getItem('nf_proxy_pref') || '{}');
 
-function parseAllorigins(xmlText, source) {
+function parseXml(xmlText, source) {
+  if (!xmlText) return [];
   try {
     const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+    if (doc.querySelector('parsererror')) return [];
     return [...doc.querySelectorAll('item')].slice(0, 20).map((item, i) => {
       const title = item.querySelector('title')?.textContent?.trim() || '';
       const link  = item.querySelector('link')?.textContent?.trim() || '';
@@ -611,38 +626,73 @@ function parseAllorigins(xmlText, source) {
       return {
         id: `${source.id}_${i}_${Date.now()}`,
         sourceId: source.id, sourceName: source.name, sourceColor: source.color,
-        title, link, desc, pubDate: pubDate ? new Date(pubDate) : new Date(), img, saved: false,
+        title, link, desc,
+        pubDate: pubDate ? new Date(pubDate) : new Date(),
+        img, saved: false,
       };
     }).filter(a => a.title && a.link);
   } catch { return []; }
 }
 
-// ── FETCH ONE SOURCE (rss2json → fallback allorigins) ──
+// ── FETCH WITH TIMEOUT ──
+function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
+// ── FETCH ONE SOURCE — thử proxy ưa thích trước, rồi thử hết chain ──
 async function fetchSource(source) {
-  // 1. thử rss2json trước (nhanh nhất)
-  try {
-    const res = await fetchWithTimeout(rss2jsonUrl(source.url), FETCH_TIMEOUT);
-    const json = await res.json();
-    const articles = parseRss2json(json, source);
-    if (articles && articles.length > 0) {
-      writeCache(source.id, articles);
-      return articles;
-    }
-  } catch (e) { /* timeout hoặc lỗi mạng → thử fallback */ }
+  setSourceStatus(source.id, 'loading');
 
-  // 2. fallback: allorigins
-  try {
-    const res = await fetchWithTimeout(alloriginsUrl(source.url), FETCH_TIMEOUT);
-    const json = await res.json();
-    const articles = parseAllorigins(json.contents, source);
-    if (articles.length > 0) {
-      writeCache(source.id, articles);
-      return articles;
-    }
-  } catch {}
+  // sắp xếp: proxy đã biết thành công lên đầu
+  const pref = proxyPreference[source.id];
+  const ordered = pref
+    ? [PROXIES.find(p => p.name === pref), ...PROXIES.filter(p => p.name !== pref)].filter(Boolean)
+    : PROXIES;
 
-  // 3. trả cache cũ nếu có (dù hết hạn)
+  for (const proxy of ordered) {
+    try {
+      const proxyUrl = proxy.url(source.url);
+      const res = await fetchWithTimeout(proxyUrl, FETCH_TIMEOUT);
+      if (!res.ok) continue;
+
+      let data;
+      if (proxy.isJson) {
+        data = await res.json();
+        if (proxy.extract) data = proxy.extract(data);
+      } else {
+        data = await res.text();
+      }
+
+      const articles = proxy.parse(proxy.isJson && !proxy.extract ? data : { contents: data, ...data }, source);
+      // nếu parse trả null (rss2json format) thì thử lại đúng
+      const finalArticles = Array.isArray(articles) ? articles
+        : proxy.name === 'rss2json' ? proxy.parse(data, source)
+        : [];
+
+      if (finalArticles && finalArticles.length > 0) {
+        writeCache(source.id, finalArticles);
+        proxyPreference[source.id] = proxy.name;
+        localStorage.setItem('nf_proxy_pref', JSON.stringify(proxyPreference));
+        setSourceStatus(source.id, 'ok');
+        return finalArticles;
+      }
+    } catch { /* thử proxy tiếp theo */ }
+  }
+
+  setSourceStatus(source.id, 'error');
   return readStaleCache(source.id) || [];
+}
+
+// ── SOURCE STATUS INDICATOR ──
+function setSourceStatus(sourceId, status) {
+  const el = document.getElementById(`src-status-${sourceId}`);
+  if (!el) return;
+  const map = { loading: '⟳', ok: '✓', error: '✕' };
+  const col = { loading: 'var(--muted)', ok: 'var(--accent2)', error: 'var(--accent)' };
+  el.textContent = map[status] || '';
+  el.style.color = col[status] || '';
 }
 
 // ── FETCH ALL (stale-while-revalidate) ──
@@ -854,6 +904,7 @@ function renderSources() {
         ${s.name}
       </div>
       <div style="display:flex;gap:4px;align-items:center">
+        <span id="src-status-${s.id}" style="font-size:11px;min-width:12px;text-align:center"></span>
         ${s.enabled ? `<span class="source-count">${count}</span>` : ''}
         <button onclick="toggleSource('${s.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:.6" title="${s.enabled?'Tắt':'Bật'}">
           ${s.enabled ? '●' : '○'}
