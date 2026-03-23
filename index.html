@@ -20,6 +20,17 @@
     --sans: 'DM Sans', system-ui, sans-serif;
     --r: 6px;
   }
+  [data-theme="dark"] {
+    --ink: #e8e4db;
+    --paper: #181714;
+    --paper2: #201f1b;
+    --accent: #e8654a;
+    --accent2: #4caf7d;
+    --muted: #8a8679;
+    --border: #2e2d29;
+    --card: #22211e;
+  }
+  body { transition: background .25s, color .25s; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 16px; scroll-behavior: smooth; }
   body {
@@ -224,11 +235,11 @@
   .card-date { font-size: 11px; color: var(--muted); }
   .card-title {
     font-family: var(--serif);
-    font-size: 25px; line-height: 1.35;
+    font-size: 16px; line-height: 1.35;
     color: var(--ink);
   }
   .card-desc {
-    font-size: 20px; color: var(--muted);
+    font-size: 13px; color: var(--muted);
     line-height: 1.55;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -342,6 +353,19 @@
     padding: 12px 12px 14px;
   }
 
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: border-color .2s, background .2s, transform .2s;
+    line-height: 1;
+  }
+  .theme-toggle:hover { border-color: var(--ink); transform: rotate(20deg); }
+
   /* ── SCROLL TO TOP ── */
   #scroll-top {
     position: fixed; bottom: 28px; right: 28px; z-index: 200;
@@ -381,6 +405,7 @@
     </svg>
     Tải lại
   </button>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Đổi giao diện sáng/tối">🌙</button>
 </header>
 
 <div class="layout">
@@ -932,6 +957,18 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+// ── THEME ──
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('theme-btn').textContent = dark ? '☀️' : '🌙';
+  localStorage.setItem('nf_theme', dark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+}
+
 // ── ACCORDION ──
 function toggleAccordion(id) {
   document.getElementById(id).classList.toggle('open');
@@ -957,6 +994,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── INIT ──
 function init() {
+  // Áp dụng theme đã lưu, hoặc theo hệ điều hành
+  const saved = localStorage.getItem('nf_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved ? saved === 'dark' : prefersDark);
   renderSources();
   renderKeywords();
   updateFilterStats();
