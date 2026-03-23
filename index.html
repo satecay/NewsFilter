@@ -447,6 +447,13 @@
           <input type="text" id="new-source-url" placeholder="RSS URL…">
           <button class="btn sm" style="width:100%;justify-content:center;margin-top:4px" onclick="addSource()">+ Thêm nguồn</button>
         </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn sm" style="flex:1;justify-content:center" onclick="exportSources()">📤 Xuất .json</button>
+          <label class="btn sm" style="flex:1;justify-content:center;cursor:pointer">
+            📥 Nhập .json
+            <input type="file" accept=".json" style="display:none" onchange="importSources(event)">
+          </label>
+        </div>
       </div>
     </div>
 
@@ -1177,6 +1184,52 @@ function importKeywords(event) {
     lines.forEach(kw => { if (!state.keywords.includes(kw)) { state.keywords.push(kw); added++; } });
     save(); renderKeywords(); updateFilterStats(); renderFeed();
     toast(`Đã nhập ${added} từ khoá mới`);
+  };
+  reader.readAsText(file);
+}
+
+// ── SOURCES EXPORT / IMPORT ──
+function exportSources() {
+  if (!state.sources.length) { toast('Chưa có nguồn nào để xuất'); return; }
+  // Chỉ xuất các trường cần thiết, bỏ id để tránh trùng khi import
+  const data = state.sources.map(({ name, url, color, enabled }) => ({ name, url, color, enabled }));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'newsfilter-sources.json';
+  a.click();
+  toast(`Đã xuất ${data.length} nguồn báo`);
+}
+
+function importSources(event) {
+  const file = event.target.files[0];
+  event.target.value = ''; // reset để có thể chọn lại cùng file
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const list = JSON.parse(e.target.result);
+      if (!Array.isArray(list)) throw new Error('Không phải mảng JSON');
+      let added = 0, skipped = 0;
+      list.forEach(item => {
+        if (!item.name || !item.url) { skipped++; return; }
+        // Bỏ qua nếu URL đã tồn tại
+        if (state.sources.some(s => s.url === item.url)) { skipped++; return; }
+        const colors = ['#8e44ad','#16a085','#d35400','#2980b9','#c0392b','#e84118','#0097e6','#27ae60'];
+        state.sources.push({
+          id: 'src_' + Date.now() + '_' + added,
+          name: item.name,
+          url: item.url,
+          color: item.color || colors[state.sources.length % colors.length],
+          enabled: item.enabled !== false, // mặc định bật nếu không có trường này
+        });
+        added++;
+      });
+      save(); renderSources();
+      toast(`Đã nhập ${added} nguồn mới${skipped ? `, bỏ qua ${skipped} trùng/lỗi` : ''}`);
+    } catch (err) {
+      toast(`Lỗi đọc file: ${err.message}`);
+    }
   };
   reader.readAsText(file);
 }
